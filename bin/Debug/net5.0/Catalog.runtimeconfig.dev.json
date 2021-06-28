@@ -1,0 +1,8 @@
+{
+  "runtimeOptions": {
+    "additionalProbingPaths": [
+      "C:\\Users\\abusa\\.dotnet\\store\\|arch|\\|tfm|",
+      "C:\\Users\\abusa\\.nuget\\packages"
+    ]
+  }
+}
