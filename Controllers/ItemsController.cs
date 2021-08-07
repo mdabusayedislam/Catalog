@@ -6,6 +6,7 @@ using Catalog.Dtos;
 using System;
 using System.Linq;
 using Catalog.Entities;
+using System.Threading.Tasks;
 
 namespace Catalog.Controllers
 {
@@ -20,25 +21,25 @@ namespace Catalog.Controllers
             _repository = repository;
         }
          [HttpGet]
-        public IEnumerable<ItemDto> GetItems()
+        [HttpGet]
+        public async Task<IEnumerable<ItemDto>> GetItemsAsync()
         {
-            var items= _repository.GetItems().Select(a=>a.AsDto());
+            var items= (await _repository.GetItemsAsync()).Select(item=>item.AsDto());
             return items;
         }
 
         [HttpGet("{id}")]
-        public ActionResult<ItemDto> GetItem(Guid id)
+        public async Task<ActionResult<ItemDto>> GetItemAsync(Guid id)
         {
-            var item = _repository.GetItem(id).AsDto();
+            var item =await _repository.GetItemAsync(id);
             if(item is null)
             {
                 return NotFound();
             }
-            return Ok(item);
+            return item.AsDto();
         }
-
         [HttpPost]
-        public ActionResult<ItemDto> CreateItem(CreateItemDto itemDto)
+        public async Task<ActionResult<ItemDto>> CreateItemAysnc(CreateItemDto itemDto)
         {
             Item item = new()
             {
@@ -47,16 +48,17 @@ namespace Catalog.Controllers
                 Price = itemDto.Price,
                 CreatedDate = DateTimeOffset.UtcNow
             };
-            _repository.CreateItem(item);
+            await _repository.CreateItemAsync(item);
 
-            return CreatedAtAction(nameof(GetItem), new { id = item.Id }, item.AsDto()) ; 
+            return CreatedAtAction(nameof(GetItemAsync), new { id = item.Id }, item.AsDto()) ; 
 
         }
+
         [HttpPut("{id}")]
-        public ActionResult UpdateItem(Guid id,UpdateItemDto itemDto)
+        public async Task<ActionResult> UpdateItemAsync(Guid id,UpdateItemDto itemDto)
         {
 
-            var existingItem = _repository.GetItem(id);
+            var existingItem =await _repository.GetItemAsync(id);
             if(existingItem is null)
             {
                 return NotFound();
@@ -66,18 +68,19 @@ namespace Catalog.Controllers
                 Name = itemDto.Name,
                 Price = itemDto.Price
             };
-            _repository.UpdateItem(updateItem);
+            await _repository.UpdateItemAsync(updateItem);
             return NoContent();
         }
+
         [HttpDelete("{id}")]
-        public ActionResult DeleteItem(Guid id)
+        public async Task<ActionResult> DeleteItem(Guid id)
         {
-            var existingItem = _repository.GetItem(id);
+            var existingItem =await _repository.GetItemAsync(id);
             if (existingItem is null)
             {
                 return NotFound();
             }            
-            _repository.DeleteItem(id);
+            await _repository.DeleteItemAsync(id);
             return NoContent();
         }
     }
